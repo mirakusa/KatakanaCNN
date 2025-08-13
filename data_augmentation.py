@@ -44,8 +44,8 @@ def elastic_transform(image):
     shape = image.shape
     
     # パラメータをランダムに設定
-    alpha = random.randint(40, 60)
-    sigma = random.choice([12, 14, 16])
+    alpha = random.randint(60, 80)
+    sigma = random.choice([12, 13, 14])
     
     # ランダムな変位フィールドを生成（-1から1の範囲）
     dx = (np.random.random(shape[:2]) * 2 - 1) * alpha
@@ -69,17 +69,19 @@ def elastic_transform(image):
     # cv2.remapで変形を適用（BORDER_REFLECTでreflectモードを再現）
     return cv2.remap(image, map_x, map_y, cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT)
 
-def augment_data(images, labels):
+def augment_data(images, labels, return_unshuffled=False):
     """データ拡張
     
     Args:
         images: 画像データの配列
         labels: ラベルの配列
+        return_unshuffled: Trueの場合、シャッフル前のデータも返す
     
     Returns:
         aug_images: 拡張後の画像
         aug_labels: 拡張後のラベル
         aug_types: 拡張タイプの配列
+        (return_unshuffled=Trueの場合) unshuffled_data: シャッフル前のデータのタプル
     """
     aug_images, aug_labels, aug_types = [], [], []
     
@@ -108,12 +110,25 @@ def augment_data(images, labels):
         aug_labels.append(lbl)
         aug_types.append('Cutout')
     
-    # シャッフル
+    # 配列に変換
     aug_images = np.array(aug_images)
     aug_labels = np.array(aug_labels)
     aug_types = np.array(aug_types)
+    
+    # シャッフル前のデータを保存
+    if return_unshuffled:
+        unshuffled_data = (aug_images.copy(), aug_labels.copy(), aug_types.copy())
+    
+    # シャッフル
     indices = np.random.permutation(len(aug_images))
-    return aug_images[indices], aug_labels[indices], aug_types[indices]
+    shuffled_images = aug_images[indices]
+    shuffled_labels = aug_labels[indices]
+    shuffled_types = aug_types[indices]
+    
+    if return_unshuffled:
+        return shuffled_images, shuffled_labels, shuffled_types, unshuffled_data
+    else:
+        return shuffled_images, shuffled_labels, shuffled_types
 
 def augment_data_advanced(images, labels, augmentation_config=None):
     """拡張可能なデータ拡張関数

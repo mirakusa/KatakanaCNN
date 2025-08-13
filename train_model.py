@@ -33,16 +33,17 @@ def main():
     
     # データ拡張
     print(f"拡張前: {len(train_data)}枚")
-    train_data, train_labels, aug_types = augment_data(train_data, train_labels)
+    train_data, train_labels, aug_types, unshuffled = augment_data(train_data, train_labels, return_unshuffled=True)
     print(f"拡張後: {len(train_data)}枚")
     
-    # 拡張結果サンプル表示（外部関数を呼び出し）
+    # 拡張結果サンプル表示（シャッフル前のデータを使用）
+    unshuffled_images, unshuffled_labels, unshuffled_types = unshuffled
     visualize_augmentation_samples(
         original_train_data, 
         original_train_labels,
-        train_data,
-        train_labels,
-        aug_types,
+        unshuffled_images,
+        unshuffled_labels,
+        unshuffled_types,
         save_path='augmentation_samples.png'
     )
     print()

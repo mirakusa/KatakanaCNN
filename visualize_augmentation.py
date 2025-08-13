@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 def visualize_augmentation_samples(original_data, original_labels, augmented_data, augmented_labels, aug_types, save_path='augmentation_samples.png'):
     """
     データ拡張のサンプル画像を可視化して保存
+    シャッフル前のデータを想定（元画像1枚につき4枚の拡張画像が連続して並んでいる）
     
     Args:
         original_data: オリジナルの画像データ
         original_labels: オリジナルのラベル
-        augmented_data: 拡張後の画像データ
+        augmented_data: 拡張後の画像データ（シャッフル前）
         augmented_labels: 拡張後のラベル
         aug_types: 拡張タイプの配列
         save_path: 保存先のパス
@@ -39,15 +40,23 @@ def visualize_augmentation_samples(original_data, original_labels, augmented_dat
         axes[0, col_idx].set_title(f'Original\nClass: {class_id}', fontsize=10)
         axes[0, col_idx].axis('off')
         
-        # 各拡張タイプごとに1つずつ表示
+        # シャッフル前のデータ構造を利用
+        # 各元画像に対して4枚の拡張画像が連続して格納されている
+        # orig_idx * 4: Original, orig_idx * 4 + 1: Elastic, 
+        # orig_idx * 4 + 2: Rotate+Elastic, orig_idx * 4 + 3: Cutout
+        aug_base_idx = orig_idx * 4
+        
+        # 各拡張タイプの画像を表示
         aug_type_list = ['Elastic', 'Rotate+Elastic', 'Cutout', 'Elastic+Cutout']
+        type_to_offset = {'Original': 0, 'Elastic': 1, 'Rotate+Elastic': 2, 'Cutout': 3, 'Elastic+Cutout': 3}
+        
         for row_idx, aug_type in enumerate(aug_type_list[:n_aug_types], 1):
-            # 該当する拡張タイプの画像を探す
-            type_indices = np.where((np.argmax(augmented_labels, axis=1) == class_id) & (aug_types == aug_type))[0]
-            if len(type_indices) > 0:
-                aug_idx = type_indices[0]
-                axes[row_idx, col_idx].imshow(augmented_data[aug_idx, 0], cmap='gray')
-                axes[row_idx, col_idx].set_title(f'{aug_type}', fontsize=9)
+            if aug_type in type_to_offset:
+                # 対応する拡張画像のインデックスを計算
+                aug_idx = aug_base_idx + type_to_offset[aug_type]
+                if aug_idx < len(augmented_data) and aug_types[aug_idx] == aug_type:
+                    axes[row_idx, col_idx].imshow(augmented_data[aug_idx, 0], cmap='gray')
+                    axes[row_idx, col_idx].set_title(f'{aug_type}', fontsize=9)
             axes[row_idx, col_idx].axis('off')
     
     plt.suptitle('Data Augmentation Comparison', fontsize=14, y=1.02)
