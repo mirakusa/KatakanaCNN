@@ -19,19 +19,21 @@ def main():
     print("前処理完了")
     
     # モデル読み込み
-    model = KatakanaCNN()
-    with open('params.pickle', 'rb') as f:
+    model = KatakanaCNN2()
+    with open('params2.pickle', 'rb') as f:
         params = pickle.load(f)
         model.params = params
-        # レイヤーの重みも更新（KatakanaCNN用のインデックス）
+        # レイヤーの重みも更新（KatakanaCNN2用のインデックス）
         model.layers[0].W = params['W1']  # Conv1
         model.layers[0].b = params['b1']
-        model.layers[3].W = params['W2']  # Conv2  
+        model.layers[3].W = params['W2']  # Conv2
         model.layers[3].b = params['b2']
-        model.layers[6].W = params['W3']  # Affine1
+        model.layers[6].W = params['W3']  # Conv3
         model.layers[6].b = params['b3']
-        model.layers[8].W = params['W4']  # Affine2
-        model.layers[8].b = params['b4']
+        model.layers[9].W = params['W4']  # Affine1
+        model.layers[9].b = params['b4']
+        model.layers[12].W = params['W5'] # Affine2
+        model.layers[12].b = params['b5']
     
     print("全学習データの評価を開始...")
     print(f"データサイズ: {len(data)}枚")
