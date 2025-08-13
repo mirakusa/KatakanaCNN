@@ -15,19 +15,19 @@ def visualize_augmentation_samples(original_data, original_labels, augmented_dat
         save_path: 保存先のパス
     """
     # 表示設定
-    n_samples = 10  # 表示するサンプル数
+    n_samples = 15  # 表示するサンプル数（15クラス全て）
     n_aug_types = 4  # 拡張タイプ数（Original除く）
     
     # 各クラスから1つずつランダムにサンプルを選択
     sample_indices = []
     for i in range(n_samples):
         # オリジナル画像から選択
-        orig_class_indices = np.where(np.argmax(original_labels, axis=1) == i % 15)[0]
+        orig_class_indices = np.where(np.argmax(original_labels, axis=1) == i)[0]
         if len(orig_class_indices) > 0:
             sample_indices.append(np.random.choice(orig_class_indices))
     
-    # プロット作成
-    fig, axes = plt.subplots(n_aug_types + 1, len(sample_indices), figsize=(14, 10))
+    # プロット作成（幅を大きく、高さも調整）
+    fig, axes = plt.subplots(n_aug_types + 1, len(sample_indices), figsize=(22, 8))
     
     # 1次元配列の場合に対処
     if len(sample_indices) == 1:
@@ -59,9 +59,9 @@ def visualize_augmentation_samples(original_data, original_labels, augmented_dat
                     axes[row_idx, col_idx].set_title(f'{aug_type}', fontsize=9)
             axes[row_idx, col_idx].axis('off')
     
-    plt.suptitle('Data Augmentation Comparison', fontsize=14, y=1.02)
+    plt.suptitle('Data Augmentation Comparison (All 15 Classes)', fontsize=16, y=1.02)
     plt.tight_layout()
-    plt.savefig(save_path, dpi=120, bbox_inches='tight')
+    plt.savefig(save_path, dpi=150, bbox_inches='tight')
     plt.close()
     print(f"拡張サンプル保存: {save_path}")
 
